@@ -1,14 +1,12 @@
 import React, { useState, useEffect} from "react";
 import { Route, Routes, useNavigate} from "react-router-dom";
-import Header from "./Header";
-import Nav from "./Nav";
 import Home from "./Home";
 import NewPost from "./NewPost";
 import PostPage from "./PostPage";
 import About from "./About";
 import Missing from "./Missing";
-import Footer from "./Footer";
 import { format } from "date-fns";
+import Layout from "./Layout";
 
 function App() {
     const [posts, setPosts] = useState([
@@ -41,7 +39,7 @@ function App() {
     const [searchResults, setSearchResults] = useState([]);
     const [postTitle, setPostTitle] = useState("");
     const [postBody, setPostBody] = useState("");
-    const history = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const filteredResults = posts.filter(post =>
@@ -60,43 +58,39 @@ function App() {
         setPosts(allPosts);
         setPostTitle("");
         setPostBody("");
-        history("/");
+        navigate("/");
     }
     const handleDelete = (id) => {
         const postsList = posts.filter(post => post.id !== id);
         setPosts(postsList);
-        history("/");
+        navigate("/");
     }
 
-  return (
-    <div className="App">
-      <Header title="Tetyana's React Router v.6 Blog"/>
-      <Nav search={search} setSearch={setSearch} />
-      <Routes>
-        <Route path="/" element={<Home posts={searchResults} />} />
-        <Route path="/post" element={
-            <NewPost
-            handleSubmit={handleSubmit}
-            postTitle={postTitle}
-            setPostTitle={setPostTitle}
-            postBody={postBody}
-            setPostBody={setPostBody}
-            />
-        }/>
-        <Route path="/post/:id" element={<PostPage posts={posts} handleDelete={handleDelete}/>} />
-        <Route path="/about" element={<About />} />
-        <Route path="*" element={<Missing />} />
-        <Route path="/test" element={
-            <div>
-                <h1>Test</h1>
-                <p>This is the test</p>
-            </div>
-        }
-         />
-      </Routes>
-      <Footer />
-    </div>
-  );
+    return (
+        <Routes>
+            <Route path="/" element={<Layout
+                search={search}
+                setSearch={setSearch}
+            />}>
+                <Route index element={<Home posts={searchResults} />} />
+                <Route path="post">
+                    <Route index element={<NewPost
+                        handleSubmit={handleSubmit}
+                        postTitle={postTitle}
+                        setPostTitle={setPostTitle}
+                        postBody={postBody}
+                        setPostBody={setPostBody}
+                    />} />
+                    <Route path=":id" element={<PostPage
+                        posts={posts}
+                        handleDelete={handleDelete}
+                    />} />
+                </Route>
+                <Route path="about" element={<About />} />
+                <Route path="*" element={<Missing />} />
+            </Route>
+        </Routes>
+    );
 }
 
 export default App;
